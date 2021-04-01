@@ -12,8 +12,16 @@ def user_helper(user)->dict:
         "firstName":user["firstName"],
         "lastName":user["lastName"],
         "emailID":user["emailID"],
-        # "dateOfBirth":user["dateOfBirth"],
+        "dateOfBirth":user["dateOfBirth"],
         "password":user["hashedPassword"]
+    }
+
+def user_helper_id(user)->dict:
+    return{
+        "firstName":user["firstName"],
+        "lastName":user["lastName"],
+        "emailID":user["emailID"],
+        "dateOfBirth":user["dateOfBirth"]
     }
 
 
@@ -31,6 +39,17 @@ async def get_user_by_email(email:str)->dict:
     user=await user_collection.find_one({"emailID":email})
     if user:
         return user_helper(user)
+    else:
+        return None
+
+#Retrieve user with id
+async def get_user_by_id(id:str)->dict:
+
+    user=await user_collection.find_one({"_id":ObjectId(id)})
+    if user:
+        return user_helper_id(user)
+    else:
+        return None
 
 #Update user with matching Email
 async def update_user_by_email(email:str,data:dict)->dict:

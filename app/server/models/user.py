@@ -1,13 +1,13 @@
 from pydantic import BaseModel,Field,EmailStr
 from typing import Optional
-from datetime import datetime
+from datetime import date
 
 class UserInfoSchema(BaseModel):
     
     firstName: str = Field(...)
     lastName: str =Field(...)
     emailID: EmailStr =Field(...)
-    # dateOfBirth: datetime.date =Field(...)
+    dateOfBirth: date =Field(...)
 
     class Config:
         schema_extra={
@@ -15,6 +15,7 @@ class UserInfoSchema(BaseModel):
                 "firstName":"John",
                 "lastName":"Wick",
                 "emailID":"johnwick@gmail.com",
+                "dateOfBirth":"1997-10-22",
                 "password":"password"
             }
         }
@@ -32,5 +33,4 @@ class UpdateUserSchema(BaseModel):
 
     firstName: Optional[str]
     lastName: Optional[str]
-    emailID: Optional[EmailStr]
-    # dateOfBirth: Optional[datetime.date()]
+    dateOfBirth: Optional[date]

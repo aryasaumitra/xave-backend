@@ -1,3 +1,4 @@
+from ..auth.auth_handler import create_jwt_token
 from fastapi import APIRouter, Body
 from fastapi.encoders import jsonable_encoder
 import bcrypt
@@ -20,10 +21,23 @@ from ..models.base import (
 from ..models.user import (
     UserCreateSchema,
     UserDBSchema,
-    UpdateUserSchema
+    UpdateUserSchema,
+    UserLoginSchema
 )
 
 router =APIRouter()
+
+#Helper Functions
+async def checkLogin(user:UserLoginSchema=Body(...)):
+    
+    existing_user=await get_user_by_email(user.emailID)
+    # print(existing_user)
+    # print(user)
+
+    if existing_user:
+        return bcrypt.checkpw(password=user.password.encode('utf-8'),hashed_password=existing_user['password'].encode('utf-8'))
+    else: 
+        return None
 
 #Create a User
 @router.post("/signup",response_description="User Added Successfully to database")
@@ -49,6 +63,16 @@ async def create_new_user(user:UserCreateSchema=Body(...)):
         if new_user:
             return ResponseModel(new_user,"User Added Successfully")
         return ErrorResponseModel("An Error Occured",404,"Unable to add User")
+
+#Login a user
+@router.post("/login",response_description="User Successfully Logged In")
+async def login_user(user:UserLoginSchema=Body(...)):
+
+    if await checkLogin(user):
+        userData= await get_user_by_email(user.emailID)
+        return create_jwt_token(userData["id"])
+    else:
+        return ErrorResponseModel("An Error Occured",404,"Email ID or Password Incorrect")
 
 #Update a user
 @router.patch("/update",response_description="User Data Updated Successfully")

@@ -34,3 +34,16 @@ class UpdateUserSchema(BaseModel):
     firstName: Optional[str]
     lastName: Optional[str]
     dateOfBirth: Optional[date]
+
+class UserLoginSchema(BaseModel):
+
+    emailID: EmailStr=Field(...)
+    password:str=Field(...)
+
+    class Config:
+        schema_extra={
+            "example":{
+                "emailID":"xyz@gmail.com",
+                "password":"password"
+            }
+        }

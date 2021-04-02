@@ -21,9 +21,9 @@ def create_jwt_token(userId:str,expires:timedelta=None)->Dict[str,str]:
 
     payload={
         "userId":userId,
-        "expires":expire
+        "expires":expire.isoformat()
     }
-
+    # print(type(expire))
     encoded_token=jwt.encode(payload=payload,key=JWT_SECRET,algorithm=JWT_ALGORITHM)
 
     return token_resposne(encoded_token)

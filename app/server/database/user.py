@@ -1,7 +1,7 @@
 from bson.objectid import ObjectId
 from .baseDB import database
 
-#Create a collection
+#Create/Get a collection
 user_collection=database.get_collection("user_collection")
 
 #helper

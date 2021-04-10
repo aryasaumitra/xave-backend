@@ -43,4 +43,13 @@ class TransactionDBSchema(TransactionInfoSchema):
                 "userID":"12nkl1ndlkn12ioncada"
             }
         }
-    
+
+class TransactionUpdateSchema(BaseModel):
+
+    transactionAmount: Optional[float]=Field(gt=0.0)
+    transactionType: Optional[str]
+    transactionGrouping: Optional[str]
+    transactionDate: Optional[date]
+    transactionMonth:Optional[str]
+    transactionYear:Optional[str]
+    transactionComment:Optional[str]

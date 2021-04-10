@@ -1,3 +1,4 @@
+from ..database.transaction import delete_all_transaction
 from bson.objectid import ObjectId
 from .baseDB import database
 
@@ -65,6 +66,7 @@ async def update_user_by_email(email:str,data:dict)->dict:
 async def delete_user(email:str):
     user=await user_collection.find_one({"emailID":email})
     if user:
+        await delete_all_transaction(user["_id"])
         await user_collection.delete_one({"_id":ObjectId(user["_id"])})
         return True
     return False

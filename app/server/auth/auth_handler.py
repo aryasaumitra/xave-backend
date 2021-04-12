@@ -2,6 +2,7 @@ from datetime import datetime, timedelta,time
 from decouple import config
 import jwt
 from typing import Dict
+import time
 
 JWT_SECRET=config('secret')
 JWT_ALGORITHM=config('algorithm')
@@ -12,16 +13,16 @@ def token_resposne(token:str):
         "token_type":"Bearer"
     }
 
-def create_jwt_token(userId:str,expires:timedelta=None)->Dict[str,str]:
+def create_jwt_token(userID:str,expires:int=None)->Dict[str,str]:
 
     if expires:
-        expire=datetime.utcnow() + expires
+        expire=time.time()+expires
     else:
-        expire=datetime.utcnow()+timedelta(days=1)
+        expire=time.time()+86400
 
     payload={
-        "userId":userId,
-        "expires":expire.isoformat()
+        "userID":userID,
+        "expires":expire
     }
     # print(type(expire))
     encoded_token=jwt.encode(payload=payload,key=JWT_SECRET,algorithm=JWT_ALGORITHM)

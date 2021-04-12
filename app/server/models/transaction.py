@@ -8,8 +8,6 @@ class TransactionInfoSchema(BaseModel):
     transactionType: str=Field(...,)
     transactionGrouping: str=Field(...)
     transactionDate: date=Field(...)
-    transactionMonth:str=Field(...)
-    transactionYear:str=Field(...)
     transactionComment:str=Field(...)
 
     class Config:
@@ -19,8 +17,6 @@ class TransactionInfoSchema(BaseModel):
                 "transactionType":"INCOME",
                 "transactionGrouping":"SALARY",
                 "transactionDate":"1997-10-22",
-                "transactionMonth":"October",
-                "transactionYear":"1997",
                 "transactionComment":"October Salary"
             }
         }
@@ -29,6 +25,8 @@ class TransactionInfoSchema(BaseModel):
 class TransactionDBSchema(TransactionInfoSchema):
 
     userID: str=Field(...)
+    transactionMonth:str=Field(...)
+    transactionYear:str=Field(...)
 
     class Config:
         schema_extra={

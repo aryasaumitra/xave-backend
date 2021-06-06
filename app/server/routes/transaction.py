@@ -41,7 +41,7 @@ router= APIRouter()
 
 #Create a transaction
 @router.post("/create",response_description="Transaction added Successfully",status_code=status.HTTP_201_CREATED)
-async def create_transaction(data:TransactionInfoSchema=Body(...),token:str=Depends(JWTBearer())):
+async def CreateTransaction(data:TransactionInfoSchema=Body(...),token:str=Depends(JWTBearer())):
     
     userID=decode_jwt(token)
 
@@ -68,7 +68,7 @@ async def create_transaction(data:TransactionInfoSchema=Body(...),token:str=Depe
 
 #Update a Transaction
 @router.patch("/update",response_description="Transaction Updated Successfully",status_code=status.HTTP_200_OK)
-async def edit_transaction(transaction_id:str=Body(...),data:TransactionUpdateSchema=Body(...),token:str=Depends(JWTBearer())):
+async def EditTransaction(transaction_id:str=Body(...),data:TransactionUpdateSchema=Body(...),token:str=Depends(JWTBearer())):
     
     updatedTransaction= await update_transaction(transaction_id,data)
 
@@ -78,7 +78,7 @@ async def edit_transaction(transaction_id:str=Body(...),data:TransactionUpdateSc
 
 #Delete a Transaction
 @router.delete("/",response_description="Transaction Deleted")
-async def remove_transaction(transaction_id:str=Body(...),token:str=Depends(JWTBearer())):
+async def RemoveTransaction(transaction_id:str=Body(...),token:str=Depends(JWTBearer())):
 
     deleleTrs= await delete_transaction(transaction_id)
 
@@ -89,7 +89,7 @@ async def remove_transaction(transaction_id:str=Body(...),token:str=Depends(JWTB
 
 #Delete all Transaction
 @router.delete("/delete",response_description="All Transaction Removed")
-async def remove_all_transaction(token:str=Depends(JWTBearer())):
+async def RemoveAllTransaction(token:str=Depends(JWTBearer())):
 
     userId=decode_jwt(token)
 
@@ -98,3 +98,26 @@ async def remove_all_transaction(token:str=Depends(JWTBearer())):
     if deleteAllTransaction:
         return ResponseModel({"Status":"Successfull"},"Deleted all Transaction Successfully")
     return ErrorResponseModel("An Error Occured",status.HTTP_404_NOT_FOUND,"Unable to delete")
+
+
+#Get A Transaction
+@router.get("/transaction")
+async def GetTransaction(t_id:str=Body(...),token:str=Depends(JWTBearer())):
+
+    transaction=await get_transaction(t_id=t_id)
+
+    if transaction:
+        return ResponseModel(transaction,"Success")
+    return ErrorResponseModel("An Error Occured",status.HTTP_404_NOT_FOUND,"Unable to Find Transaction")
+
+#Get all Transactions for a User
+@router.get("/transaction/all")
+async def GetAllTransaction(token:str=Depends(JWTBearer())):
+
+    userId=decode_jwt(token)
+
+    transactionList=await get_all_transaction(userId['userId'])
+
+    if transactionList:
+        return ResponseModel({"Transactions":transactionList},"Success")
+    return ErrorResponseModel("An Error Occured",status.HTTP_500_INTERNAL_SERVER_ERROR,"Unable to Fetch Transactions")

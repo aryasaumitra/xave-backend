@@ -1,4 +1,6 @@
-from ..auth.auth_handler import create_jwt_token
+from app.server.auth.auth_bearer import JWTBearer
+from fastapi.param_functions import Depends
+from ..auth.auth_handler import create_jwt_token, decode_jwt
 from fastapi import APIRouter, Body
 from fastapi.encoders import jsonable_encoder
 import bcrypt
@@ -7,8 +9,9 @@ import bcrypt
 from ..database.user import (
     add_user,
     get_user_by_email,
-    update_user_by_email,
-    delete_user
+    update_user,
+    delete_user,
+    get_user_by_id
 )
 
 #Importing Response Models
@@ -28,7 +31,7 @@ from ..models.user import (
 router =APIRouter()
 
 #Helper Functions
-async def checkLogin(user:UserLoginSchema=Body(...)):
+async def CheckLogin(user:UserLoginSchema=Body(...)):
     
     existing_user=await get_user_by_email(user.emailID)
     # print(existing_user)
@@ -41,7 +44,7 @@ async def checkLogin(user:UserLoginSchema=Body(...)):
 
 #Create a User
 @router.post("/signup",response_description="User Added Successfully to database")
-async def create_new_user(user:UserCreateSchema=Body(...)):
+async def CreateNewUser(user:UserCreateSchema=Body(...)):
 
     existing_user= await get_user_by_email(user.emailID)
 
@@ -66,9 +69,9 @@ async def create_new_user(user:UserCreateSchema=Body(...)):
 
 #Login a user
 @router.post("/login",response_description="User Successfully Logged In")
-async def login_user(user:UserLoginSchema=Body(...)):
+async def LoginUser(user:UserLoginSchema=Body(...)):
 
-    if await checkLogin(user):
+    if await CheckLogin(user):
         userData= await get_user_by_email(user.emailID)
         return create_jwt_token(userData["id"])
     else:
@@ -76,13 +79,15 @@ async def login_user(user:UserLoginSchema=Body(...)):
 
 #Update a user
 @router.patch("/update",response_description="User Data Updated Successfully")
-async def update_user(email:str=Body(...),data:UpdateUserSchema=Body(...)):
+async def UpdateUser(token:str=Depends(JWTBearer()),data:UpdateUserSchema=Body(...)):
 
-    existing_user=await get_user_by_email(email)
+    userId=decode_jwt(token)
+
+    existing_user=await get_user_by_id(userId["userId"])
 
     if existing_user:
 
-        updated_user= await update_user_by_email(email=email,data=data)
+        updated_user= await update_user(userId=userId["userId"],data=data)
         if updated_user:
             return ResponseModel("User Data Updated Successfully")
         return ErrorResponseModel("An Error Occured",403,"Unable to update User")
@@ -92,9 +97,11 @@ async def update_user(email:str=Body(...),data:UpdateUserSchema=Body(...)):
 
 #Delete a user
 @router.delete("/delete",response_description="User Deleted")
-async def delete_user_profile(email:str=Body(...)):
+async def DeleteUser(token:str=Depends(JWTBearer())):
 
-    deleted_user=await delete_user(email)
+    userId=decode_jwt(token)
+
+    deleted_user=await delete_user(userId=userId['userId'])
     if deleted_user:
         return ResponseModel("User Deleted")
     return ErrorResponseModel("Internal Server Error",500,"Unable to delete user")

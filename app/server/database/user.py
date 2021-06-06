@@ -52,10 +52,10 @@ async def get_user_by_id(id:str)->dict:
     else:
         return None
 
-#Update user with matching Email
-async def update_user_by_email(email:str,data:dict)->dict:
+#Update user
+async def update_user(userId:str,data:dict)->dict:
 
-    user=await user_collection.find_one({"emailID":email})
+    user=await user_collection.find_one({"_id":userId})
     if user:
         updated_user=await user_collection.update_one({"_id":ObjectId(user["_id"])},{"$set":data})
         if updated_user:
@@ -63,8 +63,8 @@ async def update_user_by_email(email:str,data:dict)->dict:
         return False
 
 #Delete user
-async def delete_user(email:str):
-    user=await user_collection.find_one({"emailID":email})
+async def delete_user(userId:str):
+    user=await user_collection.find_one({"_id":userId})
     if user:
         await delete_all_transaction(user["_id"])
         await user_collection.delete_one({"_id":ObjectId(user["_id"])})

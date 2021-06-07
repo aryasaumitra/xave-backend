@@ -1,3 +1,4 @@
+import re
 from ..helper.helper import getISODate, getMonth, getYear
 from ..auth.auth_bearer import JWTBearer
 from fastapi import Body,APIRouter,status
@@ -15,12 +16,6 @@ from ..database.transaction import (
     get_all_transaction,
     get_all_income_transaction,
     get_all_expense_transaction,
-    get_transaction_by_month,
-    get_income_transaction_by_month,
-    get_expense_transaction_by_month,
-    get_transaction_by_year,
-    get_expense_transaction_by_year,
-    get_income_transaction_by_year
 )
 
 #Import Response Models
@@ -67,8 +62,8 @@ async def CreateTransaction(data:TransactionInfoSchema=Body(...),token:str=Depen
 
 
 #Update a Transaction
-@router.patch("/update",response_description="Transaction Updated Successfully",status_code=status.HTTP_200_OK)
-async def EditTransaction(transaction_id:str=Body(...),data:TransactionUpdateSchema=Body(...),token:str=Depends(JWTBearer())):
+@router.patch("/update/{transaction_id}",response_description="Transaction Updated Successfully",status_code=status.HTTP_200_OK)
+async def EditTransaction(transaction_id:str,data:TransactionUpdateSchema=Body(...),token:str=Depends(JWTBearer())):
     
     updatedTransaction= await update_transaction(transaction_id,data)
 
@@ -77,8 +72,8 @@ async def EditTransaction(transaction_id:str=Body(...),data:TransactionUpdateSch
     return ErrorResponseModel("An Error Occured",status.HTTP_500_INTERNAL_SERVER_ERROR,"Unable to update")
 
 #Delete a Transaction
-@router.delete("/",response_description="Transaction Deleted")
-async def RemoveTransaction(transaction_id:str=Body(...),token:str=Depends(JWTBearer())):
+@router.delete("/{transaction_id}",response_description="Transaction Deleted")
+async def RemoveTransaction(transaction_id:str,token:str=Depends(JWTBearer())):
 
     deleleTrs= await delete_transaction(transaction_id)
 
@@ -88,7 +83,7 @@ async def RemoveTransaction(transaction_id:str=Body(...),token:str=Depends(JWTBe
     return ErrorResponseModel("An Error Occured",status.HTTP_500_INTERNAL_SERVER_ERROR,"Unable to delete")
 
 #Delete all Transaction
-@router.delete("/delete",response_description="All Transaction Removed")
+@router.delete("/delete/",response_description="All Transaction Removed")
 async def RemoveAllTransaction(token:str=Depends(JWTBearer())):
 
     userId=decode_jwt(token)
@@ -101,10 +96,10 @@ async def RemoveAllTransaction(token:str=Depends(JWTBearer())):
 
 
 #Get A Transaction
-@router.get("/transaction")
-async def GetTransaction(t_id:str=Body(...),token:str=Depends(JWTBearer())):
+@router.get("/transaction/{transaction_id}")
+async def GetTransaction(transaction_id:str,token:str=Depends(JWTBearer())):
 
-    transaction=await get_transaction(t_id=t_id)
+    transaction=await get_transaction(t_id=transaction_id)
 
     if transaction:
         return ResponseModel(transaction,"Success")
@@ -121,3 +116,27 @@ async def GetAllTransaction(token:str=Depends(JWTBearer())):
     if transactionList:
         return ResponseModel({"Transactions":transactionList},"Success")
     return ErrorResponseModel("An Error Occured",status.HTTP_500_INTERNAL_SERVER_ERROR,"Unable to Fetch Transactions")
+
+#Get All Income Transaction for a User
+@router.get("/transaction/income")
+async def GetIncomeTransaction(token:str=Depends(JWTBearer())):
+
+    userId=decode_jwt(token)
+
+    incomeTransactionList=await get_all_income_transaction(userId['userId'])
+
+    if incomeTransactionList:
+        return ResponseModel({"IncomeTransactionList":incomeTransactionList},"Success")
+    return ErrorResponseModel("An Error Occured",status.HTTP_500_INTERNAL_SERVER_ERROR,"Unable to Fetch Income")
+
+#Get All Expense Transaction for a user
+@router.get("/transaction/expense")
+async def GetExpenseTransaction(token:str=Depends(JWTBearer())):
+
+    userId=decode_jwt(token)
+
+    expenseTransactionList=await get_all_expense_transaction(userId['userId'])
+
+    if expenseTransactionList:
+        return ResponseModel({"ExpenseTransactionList":expenseTransactionList},"Success")
+    return ErrorResponseModel("An Error Occured",status.HTTP_500_INTERNAL_SERVER_ERROR,"Unable to Fetch Income")

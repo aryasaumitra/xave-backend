@@ -181,6 +181,15 @@ async def get_all_expense_transaction(u_id:str)->List[Dict]:
         return False
 
 
+""""
+    Below is example of Redundant Code. 
+    Violates the DRY Principle. 
+    The logic implemented below could be easily achieved by some client side filtering. 
+    Implementing the below code as API routes would add unecessary API calls in the Client Side.
+    
+"""
+
+
 #Get Transaction by Month
 async def get_transaction_by_month(u_id:str,month:str,year:str)->List[Dict]:
     """

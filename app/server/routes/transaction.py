@@ -96,7 +96,7 @@ async def RemoveAllTransaction(token:str=Depends(JWTBearer())):
 
 
 #Get A Transaction
-@router.get("/transaction/{transaction_id}")
+@router.get("/{transaction_id}")
 async def GetTransaction(transaction_id:str,token:str=Depends(JWTBearer())):
 
     transaction=await get_transaction(t_id=transaction_id)
@@ -106,7 +106,7 @@ async def GetTransaction(transaction_id:str,token:str=Depends(JWTBearer())):
     return ErrorResponseModel("An Error Occured",status.HTTP_404_NOT_FOUND,"Unable to Find Transaction")
 
 #Get all Transactions for a User
-@router.get("/transaction/all")
+@router.get("/all")
 async def GetAllTransaction(token:str=Depends(JWTBearer())):
 
     userId=decode_jwt(token)
@@ -118,7 +118,7 @@ async def GetAllTransaction(token:str=Depends(JWTBearer())):
     return ErrorResponseModel("An Error Occured",status.HTTP_500_INTERNAL_SERVER_ERROR,"Unable to Fetch Transactions")
 
 #Get All Income Transaction for a User
-@router.get("/transaction/income")
+@router.get("/income")
 async def GetIncomeTransaction(token:str=Depends(JWTBearer())):
 
     userId=decode_jwt(token)
@@ -130,7 +130,7 @@ async def GetIncomeTransaction(token:str=Depends(JWTBearer())):
     return ErrorResponseModel("An Error Occured",status.HTTP_500_INTERNAL_SERVER_ERROR,"Unable to Fetch Income")
 
 #Get All Expense Transaction for a user
-@router.get("/transaction/expense")
+@router.get("/expense")
 async def GetExpenseTransaction(token:str=Depends(JWTBearer())):
 
     userId=decode_jwt(token)

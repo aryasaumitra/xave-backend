@@ -1,4 +1,4 @@
-from app.server.auth.auth_bearer import JWTBearer
+from ..auth.auth_bearer import JWTBearer
 from fastapi.param_functions import Depends
 from ..auth.auth_handler import create_jwt_token, decode_jwt
 from fastapi import APIRouter, Body
